@@ -47,6 +47,17 @@
               #   Mod+Q repeat=false { close-window; }
               #   → "Mod+Q" = withProps { repeat = false; } { close-window = flag; };
               withProps = props: content: _: { inherit props content; };
+
+              micMuteAll = pkgs.writeShellScript "mic-mute-all" ''
+                wpctl=${pkgs.wireplumber}/bin/wpctl
+                pactl=${pkgs.pulseaudio}/bin/pactl
+                if [[ "$($wpctl get-volume @DEFAULT_AUDIO_SOURCE@)" == *MUTED* ]]; then m=0; else m=1; fi
+                $pactl list short sources | while read -r _ name _; do
+                  [[ "$name" == *.monitor ]] && continue   # skip output monitors, not real mics
+                  $pactl set-source-mute "$name" "$m"
+                done
+              '';
+
             in
             {
               # Keys are modifiers joined by +, then an XKB key name (find names with `wev`).
@@ -55,6 +66,7 @@
 
               # Mod-Shift-/ (usually Mod-?) shows a list of important hotkeys.
               "Mod+Shift+Slash".show-hotkey-overlay = flag;
+              "Mod+Shift+N".spawn-sh = "pkill noctalia; exec noctalia";
 
               # Programs: terminal, app launcher, screen locker.
               "Mod+Return".spawn-sh = lib.getExe pkgs.kitty;
@@ -95,20 +107,30 @@
                 spawn-sh = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle";
               };
               XF86AudioMicMute = withProps { allow-when-locked = true; } {
-                spawn-sh = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle";
+                spawn = "${micMuteAll}";
               };
 
               # Media keys via playerctl (any MPRIS-enabled player).
-              XF86AudioPlay = withProps { allow-when-locked = true; } { spawn-sh = "playerctl play-pause"; };
-              XF86AudioPause = withProps { allow-when-locked = true; } { spawn-sh = "playerctl play-pause"; };
-              XF86AudioStop = withProps { allow-when-locked = true; } { spawn-sh = "playerctl stop"; };
-              XF86AudioPrev = withProps { allow-when-locked = true; } { spawn-sh = "playerctl previous"; };
-              XF86AudioNext = withProps { allow-when-locked = true; } { spawn-sh = "playerctl next"; };
+              XF86AudioPlay = withProps { allow-when-locked = true; } {
+                spawn-sh = (lib.getExe pkgs.playerctl) "play-pause";
+              };
+              XF86AudioPause = withProps { allow-when-locked = true; } {
+                spawn-sh = (lib.getExe pkgs.playerctl) "play-pause";
+              };
+              XF86AudioStop = withProps { allow-when-locked = true; } {
+                spawn-sh = (lib.getExe pkgs.playerctl) "stop";
+              };
+              XF86AudioPrev = withProps { allow-when-locked = true; } {
+                spawn-sh = (lib.getExe pkgs.playerctl) "previous";
+              };
+              XF86AudioNext = withProps { allow-when-locked = true; } {
+                spawn-sh = (lib.getExe pkgs.playerctl) "next";
+              };
 
               # Brightness keys. A list passes each element as a separate argument (no shell).
               XF86MonBrightnessUp = withProps { allow-when-locked = true; } {
                 spawn = [
-                  "brightnessctl"
+                  (lib.getExe pkgs.brightnessctl)
                   "--class=backlight"
                   "set"
                   "+10%"
@@ -116,7 +138,7 @@
               };
               XF86MonBrightnessDown = withProps { allow-when-locked = true; } {
                 spawn = [
-                  "brightnessctl"
+                  (lib.getExe pkgs.brightnessctl)
                   "--class=backlight"
                   "set"
                   "10%-"

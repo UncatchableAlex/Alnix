@@ -1,6 +1,11 @@
 { lib, pkgs, ... }:
 {
   programs.nvf.settings.vim = {
+
+    luaConfigRC.treesitter-install-dir = ''
+      vim.opt.runtimepath:prepend(vim.fn.stdpath("data") .. "/site")
+    '';
+
     utility.oil-nvim = {
       enable = true;
       setupOpts = {
@@ -35,7 +40,10 @@
     };
 
     options.clipboard = "unnamedplus"; # vim.o.clipboard = 'unnamedplus'
-    extraPackages = [ pkgs.wl-clipboard ]; # wl-copy/wl-paste on nvim's own PATH
+    extraPackages = [
+      pkgs.wl-clipboard
+      pkgs.tree-sitter
+    ]; # wl-copy/wl-paste on nvim's own PATH
 
     keymaps = [
       {

@@ -1,6 +1,5 @@
-
-{self, ...}: {
-  flake.nixosModules.pipewire = {pkgs, ...}: {
+{ ... }: {
+  flake.nixosModules.pipewire = { pkgs, ... }: {
     services.pipewire = {
       enable = true;
       alsa.enable = true;
@@ -10,7 +9,7 @@
       # If you want to use JACK applications, uncomment this
       # jack.enable = true;
     };
-  
+
     # set the priority for playing audio. It's important that audio tries to play greedily through
     # HDMI, Bluetooth, then speakers in that order.
     services.pipewire.wireplumber.extraConfig = {
@@ -38,10 +37,15 @@
           }
         ];
       };
-  
+
       "no-restore-default" = {
         "wireplumber.settings"."node.restore-default-targets" = false;
       };
     };
+
+    # unconfirmed hack
+    boot.extraModprobeConfig = ''
+      options snd-hda-intel model=103c:888a,103c:888a
+    '';
   };
 }

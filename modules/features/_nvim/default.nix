@@ -5,7 +5,7 @@
 }:
 {
   imports = [
-    inputs.nvf.homeManagerModules.default
+    inputs.nvf.homeModules.default
 
     #./themes/moonfly.nix
     ./themes/system-theme.nix
