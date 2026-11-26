@@ -42,10 +42,5 @@
         "wireplumber.settings"."node.restore-default-targets" = false;
       };
     };
-
-    # unconfirmed hack
-    boot.extraModprobeConfig = ''
-      options snd-hda-intel model=103c:888a,103c:888a
-    '';
   };
 }

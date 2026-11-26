@@ -39,6 +39,30 @@
               };
           };
 
+          layer-rules = [
+            {
+              matches = [ { namespace = "^noctalia-(bar-[^\"]+|notification|dock|panel|attached-panel|osd)$"; } ];
+              background-effect.xray = false;
+            }
+          ];
+          blur = {
+            passes = 3; # more passes = smoother/wider blur, more GPU
+            offset = 3; # sample distance per pass = blur radius
+            noise = 0.02; # grain against color banding
+            saturation = 1.5; # boosts colors behind the glass
+          };
+
+          window-rules = [
+            # prevents the selection color from leaking through transparent windows:
+            { draw-border-with-background = false; }
+            {
+              matches = [ { app-id = "^kitty$"; } ];
+              background-effect = {
+                blur = true;
+                xray = false;
+              };
+            }
+          ];
           binds =
             let
               # A node with nothing after it: `close-window;` → close-window = flag;
@@ -55,6 +79,9 @@
                 $pactl list short sources | while read -r _ name _; do
                   [[ "$name" == *.monitor ]] && continue   # skip output monitors, not real mics
                   $pactl set-source-mute "$name" "$m"
+
+                # write to the brightness file for the micmute LED on the keyboard
+                echo "$m" > /sys/class/leds/hda::micmute/brightness 2>/dev/null || true
                 done
               '';
 
@@ -112,19 +139,19 @@
 
               # Media keys via playerctl (any MPRIS-enabled player).
               XF86AudioPlay = withProps { allow-when-locked = true; } {
-                spawn-sh = (lib.getExe pkgs.playerctl) "play-pause";
+                spawn-sh = "${lib.getExe pkgs.playerctl} play-pause";
               };
               XF86AudioPause = withProps { allow-when-locked = true; } {
-                spawn-sh = (lib.getExe pkgs.playerctl) "play-pause";
+                spawn-sh = "${lib.getExe pkgs.playerctl} play-pause";
               };
               XF86AudioStop = withProps { allow-when-locked = true; } {
-                spawn-sh = (lib.getExe pkgs.playerctl) "stop";
+                spawn-sh = "${lib.getExe pkgs.playerctl} stop";
               };
               XF86AudioPrev = withProps { allow-when-locked = true; } {
-                spawn-sh = (lib.getExe pkgs.playerctl) "previous";
+                spawn-sh = "${lib.getExe pkgs.playerctl} previous";
               };
               XF86AudioNext = withProps { allow-when-locked = true; } {
-                spawn-sh = (lib.getExe pkgs.playerctl) "next";
+                spawn-sh = "${lib.getExe pkgs.playerctl} next";
               };
 
               # Brightness keys. A list passes each element as a separate argument (no shell).

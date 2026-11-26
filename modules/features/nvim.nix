@@ -10,8 +10,9 @@
       EDITOR = "nvim";
       VISUAL = "nvim";
     };
-
-    home-manager.extraSpecialArgs = { inherit inputs; }; # his files take `inputs` as an argument
-    home-manager.users.alexm.imports = [ ./_nvim ];
+    home-manager = {
+      extraSpecialArgs = { inherit inputs; }; # his files take `inputs` as an argument
+      users.alexm.imports = [ ./_nvim ];
+    };
   };
 }

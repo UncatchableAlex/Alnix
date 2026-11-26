@@ -53,7 +53,10 @@
       html.enable = true;
       css.enable = true;
       bash.enable = true;
-      python.enable = true;
+      python = {
+        enable = true;
+        extraDiagnostics.enable = false;
+      };
       markdown.enable = true;
       rust.enable = true;
       go.enable = true;

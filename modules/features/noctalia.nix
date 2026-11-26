@@ -3,6 +3,7 @@
     packages.alexNoctalia = inputs.wrapper-modules.wrappers.noctalia.wrap {
       inherit pkgs;
       settings = lib.recursiveUpdate (builtins.fromTOML (builtins.readFile ./noctalia.toml)) {
+        shell.greeter_sync.auto_sync = true;
         theme.templates = {
 
           enable_community_templates = true;

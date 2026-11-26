@@ -5,28 +5,42 @@
   flake.nixosModules.packages = { pkgs, ... }: {
 
     environment.systemPackages = with pkgs; [
-      wget
-      htop
+
+      # apps
       deluge
-      p7zip
-      pass
       sone
-      ghc
-      cabal-install
       haskellPackages.haskell-language-server
-      python314 # python interpreter
-      gcc # C compiler
       dissent # bootleg discord
       imv # image viewer
+      zathura # pdf viewer
+      kdePackages.kservice
+      self.packages.${pkgs.stdenv.hostPlatform.system}.alexNoctalia
       mpv # video player
       mpvScripts.uosc # mpv usability enancer
-      zathura # pdf viewer
-      ffmpeg
-      kdePackages.kservice
+      (mpv.override {
+        scripts = with pkgs.mpvScripts; [
+          uosc
+          thumbfast
+        ]; # thumbfast = timeline thumbnails
+      })
+
+      # command-line tools:
       tree # gives a tree in the terminal for cli navigation
       yazi # file explorer for the terminal
       neovim
-      self.packages.${pkgs.stdenv.hostPlatform.system}.alexNoctalia
+      ffmpeg
+      p7zip
+      wget
+      htop
+      pass
+      entr
+
+      # compilers and interpreters
+      futhark
+      ghc
+      cabal-install
+      python314 # python interpreter
+      gcc # C compiler
       (haskellPackages.ghcWithPackages (
         ps: with ps; [
           megaparsec
@@ -36,12 +50,6 @@
           mtl
         ]
       ))
-      (mpv.override {
-        scripts = with pkgs.mpvScripts; [
-          uosc
-          thumbfast
-        ]; # thumbfast = timeline thumbnails
-      })
     ];
   };
 }

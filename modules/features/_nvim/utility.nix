@@ -2,6 +2,12 @@
 {
   programs.nvf.settings.vim = {
 
+    # enable easy surrounding of visually-selected text-blocks for {}s and ()s
+    utility.surround = {
+      enable = true;
+      useVendoredKeybindings = false;
+    };
+
     luaConfigRC.treesitter-install-dir = ''
       vim.opt.runtimepath:prepend(vim.fn.stdpath("data") .. "/site")
     '';
